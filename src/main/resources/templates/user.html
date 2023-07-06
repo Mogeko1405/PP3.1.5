@@ -1,72 +1,94 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5" lang="">
-
-
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>UsersPage</title>
-    <style>
-        body {
-            font-size: x-large;
-        }
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        table {
-            border-collapse: collapse;
-        }
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-        th, td {
-            border: 1px solid;
-            align-content: center;
-        }
 
-        tr:hover td {
-            background-color: lightblue;
-        }
-
-        .no-border {
-            border: 0;
-        }
-    </style>
+  <title>Users</title>
 </head>
 <body>
-<h1 th:text="${'Страница пользователя: '} + ${user.getName()} +' '+ ${user.getLast_name()}"/>
-<table class="table">
-    <thead>
-    <tr>
-        <th scope="col"> Id</th>
-        <th scope="col"> Имя</th>
-        <th scope="col"> Фамилия</th>
-        <th scope="col"> Логин</th>
-        <th scope="col"> Пароль</th>
-        <th scope="col"> Права доступа</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td th:text="${user.getId()}"></td>
-        <td th:text="${user.getName()}"></td>
-        <td th:text="${user.getLast_name()}"></td>
-        <td th:text="${user.getUsername()}"></td>
-        <td th:text="${user.getPassword()}"></td>
-        <td th:switch="${user.getRoles().toString()}">
-            <span th:case="'[ROLE_ADMIN]'">Админ</span>
-            <span th:case="'[ROLE_USER]'">Юзер</span>
-            <span th:case="*">Other Role</span>
-        </td>
-    </tr>
-    </tbody>
-</table>
-<br>
-<div sec:authorize="hasRole('ROLE_ADMIN')">
-    <form action="/admin" target="_self">
-        <button th:class="${('ROLE_ADMIN')} ? '' : 'd-none'">Cписок пользователей (Для админов)</button>
-    </form>
-    <br>
-</div>
-<form th:action="@{/logout}" th:method="POST" target="_self">
-    <button>Выйти из аккаунта</button>
-</form>
+<nav class="navbar sticky-top bg-dark text-white">
+            <span class="navbar-brand mb-0">
+                <span style="font-weight: bold" th:text="${currentUser.getEmail()}"></span> with roles:
+                <span th:each="role : ${currentUser.getRoleList()}">
+                    <span th:text="${role.getRole().replace('ROLE_', '')}"></span>
+                </span>
+            </span>
+  <a href="/logout" class="btn text-white-50" role="button" aria-pressed="true">Logout</a>
+</nav>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-2 bg-white pt-3 min-vh-100 px-0">
+      <div class="container-fluid px-0">
+        <ul class="nav flex-column nav-pills ">
+          <li class="nav-item">
+            <div sec:authorize="hasRole('ROLE_ADMIN')">
+              <a class="nav-link" aria-current="page" href="/admin/users">Admin</a>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" th:href="@{/user#}">User</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="col pt-4 h-100 min-vh-100 bg-light">
+      <div class="container-fluid">
+        <h1 class="display-6 px-3 pb-3">User information-page</h1>
 
+        <div class="container-fluid">
+
+
+          <div class="tab-container bg-white border rounded ">
+            <div class="tab-content bg-white " id="myTabContent">
+              <div class="tab-container-fluid bg-light border-bottom pt-2 pb-1 px-0">
+                <h4 class="text-start px-4">About user</h4>
+              </div>
+              <div class="tab-content bg-white pt-4 px-4 pb-4">
+                <table class="table table-striped ">
+                  <thead>
+                  <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Age</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Role</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>
+                    <th scope="row" th:text="${currentUser.getId()}">ID</th>
+                    <td class="pt-3" th:text="${currentUser.getFirstName()}">First Name</td>
+                    <td class="pt-3" th:text="${currentUser.getLastName()}">Last Name</td>
+                    <td class="pt-3" th:text="${currentUser.getAge()}">Age</td>
+                    <td class="pt-3" th:text="${currentUser.getEmail()}">Email</td>
+                    <td class="pt-3">
+                        <span th:each="role, status : ${currentUser.getRoleList()}">
+                          <span th:utext="${role.getRole().replace('ROLE_', '')}"></span>
+                          <span th:if="${!status.last}"> </span>
+                        </span>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 </html>

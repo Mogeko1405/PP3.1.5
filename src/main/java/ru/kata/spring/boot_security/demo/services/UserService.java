@@ -1,19 +1,23 @@
 package ru.kata.spring.boot_security.demo.services;
 
+import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.entities.Role;
 import ru.kata.spring.boot_security.demo.entities.User;
 
 import java.util.List;
+import java.util.Set;
 
 public interface UserService {
-    List<User> getAllUsers();
+    List<User> findAll();
 
-    void createNewUser(User user);
+    User findOne(int id);
 
-    User getUser(Long id);
+    void saveUser(User user);
 
-    void updateUser(User user);
+    @Transactional
+    void update(Long id, User updatedUser);
 
-    void deleteUser(Long id);
+    void deleteUser(int id);
 
-    User findUserByUsername(String username);
+    Set<Role> getRole();
 }
