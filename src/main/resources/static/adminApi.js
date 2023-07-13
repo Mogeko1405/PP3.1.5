@@ -177,6 +177,19 @@ function showNewUserForm() {
 function addNewUser() {
     console.log("Работает метод addNewUser")
 
+    // Проверка на заполненность всех полей
+    if (
+        addUserForm.addFirstName.value === "" ||
+        addUserForm.addLastName.value === "" ||
+        addUserForm.addAge.value === "" ||
+        addUserForm.addEmail.value === "" ||
+        addUserForm.addPassword.value === "" ||
+        addUserForm.addRoles.value === ""
+    ) {
+        alert("Please fill in all fields")
+        return;
+    }
+
     let user = {
         firstName: addUserForm.addFirstName.value,
         lastName: addUserForm.addLastName.value,
@@ -221,8 +234,6 @@ function addNewUser() {
             showNewUserForm();
         }
     })
-
-
 }
 
 function showEditUserForm(id) {
@@ -277,18 +288,58 @@ function editUser() {
 
     console.log(user)
 
+    // Проверка на выбор роли
+    if (user.roles.length === 0) {
+        alert("Please select a role")
+        return;
+    }
+
+    // Проверка на наличие пароля
+    if (user.password === "") {
+        alert("Please enter a password")
+        return;
+    }
+
     userFetch.updateUser(user).then(res => {
         if (res.ok) {
             console.log("User with username \"" + user.username + "\" updated")
             $("#editModal").modal("hide")
             showAdminPanel()
-            if (user.id = currentUserId) {
+            if (user.id == currentUserId) {
                 updateCurrentUserInfo()
             }
         } else {
             showEditUserForm(user.id)
         }
     }).catch(e => console.log(e))
+}
+
+// Добавленный код для автоматического выбора роли
+function showEditUserForm(id) {
+    console.log("Работает метод showEditUserForm")
+    userFetch.getUser(id)
+        .then((res) => {
+            res.json().then((user) => {
+                console.log(user)
+                $("#editId").val(user.id)
+                $("#editFirstName").val(user.firstName)
+                $("#editLastName").val(user.lastName)
+                $("#editAge").val(user.age)
+                $("#editUsername").val(user.username)
+                $("#editPassword").val("")
+
+                // Автоматически выбираем роль
+                const rolesSelect = document.getElementById("editRoles");
+                for (let i = 0; i < rolesSelect.options.length; i++) {
+                    if (user.roles.some(role => role.name === rolesSelect.options[i].value)) {
+                        rolesSelect.options[i].selected = true;
+                    } else {
+                        rolesSelect.options[i].selected = false;
+                    }
+                }
+            })
+            $("#editModal").modal()
+        })
 }
 
 function showDeleteUserForm(id) {
